@@ -1,12 +1,9 @@
 import heapq
 from copy import deepcopy
-
-# Define the goal state for the 8-puzzle
 GOAL_STATE = [[1, 2, 3],
               [4, 5, 6],
               [7, 8, 0]]
 
-# Define possible moves: up, down, left, right
 MOVES = {
     'Up': (-1, 0),
     'Down': (1, 0),
@@ -15,7 +12,6 @@ MOVES = {
 }
 
 def manhattan_distance(state):
-    """Calculate the Manhattan distance heuristic for a given state."""
     distance = 0
     for i in range(3):
         for j in range(3):
@@ -27,8 +23,7 @@ def manhattan_distance(state):
     return distance
 
 def get_neighbors(state):
-    """Generate all valid neighbor states from the current state."""
-    # Find the blank (0) position
+
     x = y = None
     for i in range(3):
         for j in range(3):
@@ -41,22 +36,16 @@ def get_neighbors(state):
     neighbors = []
     for move, (dx, dy) in MOVES.items():
         new_x, new_y = x + dx, y + dy
-        # Check if the new position is within bounds
         if 0 <= new_x < 3 and 0 <= new_y < 3:
             new_state = deepcopy(state)
-            # Swap the blank with the adjacent number (fixed swap)
             new_state[x][y], new_state[new_x][new_y] = new_state[new_x][new_y], new_state[x][y]
             neighbors.append((new_state, move))
     return neighbors
 
 def state_to_tuple(state):
-    """Convert 2D state list to a tuple to use it in sets and as dict keys."""
     return tuple(item for row in state for item in row)
 
 def a_star(start_state):
-    """Perform the A* search to solve the puzzle."""
-    # Priority queue element: (priority, cost, state, path)
-    # where path is a list of (state, move) pairs leading to this state
     open_list = []
     heapq.heappush(open_list, (manhattan_distance(start_state), 0, start_state, []))
     closed_set = set()
@@ -65,7 +54,7 @@ def a_star(start_state):
         priority, cost, current_state, path = heapq.heappop(open_list)
 
         if current_state == GOAL_STATE:
-            return path  # Found solution; path is a list of moves
+            return path
 
         state_key = state_to_tuple(current_state)
         if state_key in closed_set:
@@ -82,10 +71,9 @@ def a_star(start_state):
             new_path = path + [(neighbor, move)]
             heapq.heappush(open_list, (new_priority, new_cost, neighbor, new_path))
 
-    return None  # No solution found
+    return None
 
 def print_state(state):
-    """Helper function to print a state in a readable format."""
     for row in state:
         print(" ".join(str(num) if num != 0 else " " for num in row))
     print()
@@ -94,7 +82,6 @@ def main():
     print("Enter the initial state of the 8-puzzle, use 0 to represent the blank space.")
     print("Enter 9 numbers (separated by space or newline).")
     try:
-        # Read input from the user
         raw_input = input("Enter the numbers: ")
         numbers = list(map(int, raw_input.strip().split()))
         if len(numbers) != 9:
